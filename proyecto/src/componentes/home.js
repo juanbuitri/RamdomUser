@@ -1,26 +1,34 @@
 export default async function mostrarHome() {
   const app = document.getElementById("app");
-  app.innerHTML = `<h2>Pokémon</h2><div id="lista" style="display: flex; flex-wrap: wrap; gap: 10px; justify-content: space-between; padding: 10px;"></div>`;
-
-  const lista = document.getElementById("lista");
+  app.innerHTML = `<h2>Usuarios aleatorios</h2><p>Cargando...</p>`;
 
   try {
-    const res = await fetch("https://pokeapi.co/api/v2/pokemon?limit=1025");
-    const json = await res.json();
-    const data = json.results;
+    // Llamada a la API para traer 10 usuarios
+    const res = await fetch("https://randomuser.me/api/?results=10&nat=us");
+    const data = await res.json();
 
-    data.forEach((pokemon) => {
-      const id = pokemon.url.split("/")[6];
-      const item = document.createElement("div");
+    const usuarios = data.results;
 
-      item.innerHTML = `
-        <p>${id} - ${pokemon.name}</p>
-        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${id}.png" style="width: 100px; height: 100px;" />
+    // Construir el HTML para la lista de usuarios
+    let html = `<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px;">`;
+
+    usuarios.forEach((usuario) => {
+      html += `
+        <div style="border: 1px solid #ccc; padding: 10px; border-radius: 8px; text-align: center;">
+          <img src="${usuario.picture.medium}" alt="Foto de ${usuario.name.first}" style="border-radius: 50%; margin-bottom: 10px;" />
+          <h3>${usuario.name.title} ${usuario.name.first} ${usuario.name.last}</h3>
+          <p>Email: ${usuario.email}</p>
+          <p>Teléfono: ${usuario.phone}</p>
+          <p>Ciudad: ${usuario.location.city}, ${usuario.location.state}</p>
+        </div>
       `;
-
-      lista.appendChild(item);
     });
+
+    html += "</div>";
+
+    app.innerHTML = html;
+
   } catch (error) {
-    app.innerHTML = `<p>Error al cargar los Pokémon: ${error.message}</p>`;
+    app.innerHTML = `<p>Error cargando usuarios: ${error.message}</p>`;
   }
 }
